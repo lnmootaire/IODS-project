@@ -1,0 +1,11 @@
+---
+title: "examplefile"
+author: "Ellen"
+date: "January 27, 2017"
+output: html_document
+---
+
+This **course** is called Introduction to Open Data Science. I am learning how to use RStudio. This is my *first* assignment. 
+
+This is the link to my course diary:
+http://lnmootaire.github.io/IODS-project/

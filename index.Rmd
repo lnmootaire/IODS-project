@@ -1,5 +1,6 @@
 ---
 title: "IODS course project"
+author: "Ellen Mutter"
 output:
   html_document:
     theme: cosmo
