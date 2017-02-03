@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"examplefile\"\nauthor: \"Ellen\"\ndate: \"January 27, 2017\"\noutput: html_document\n---\n\nThis **course** is called Introduction to Open Data Science. I am learning how to use RStudio. This is my *first* assignment. \n\nThis is the link to my course diary:\nhttp://lnmootaire.github.io/IODS-project/\n",
+    "created" : 1485548276321.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3770219338",
+    "id" : "8037B7BD",
+    "lastKnownWriteTime" : 1485549228,
+    "last_content_update" : 1485549228853,
+    "path" : "~/IODS-project/README.Rmd",
+    "project_path" : "README.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
