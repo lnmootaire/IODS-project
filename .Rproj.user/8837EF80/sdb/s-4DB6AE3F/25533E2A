@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"IODS course project\"\noutput:\n  html_document:\n    theme: cosmo\n    toc: true\n    toc_depth: 2\n    fig_caption: true\n    fig_width: 6\n    fig_height: 4\n    code_folding: hide\n---\n\n***\n  \n```{r child = \"chapter1.Rmd\"}\n```\n  \n***\n  \n```{r child = \"chapter2.Rmd\"}\n```\n\n***\n",
+    "created" : 1485535316055.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1656672297",
+    "id" : "25533E2A",
+    "lastKnownWriteTime" : 1485549193,
+    "last_content_update" : 1485549193,
+    "path" : "~/IODS-project/index.Rmd",
+    "project_path" : "index.Rmd",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

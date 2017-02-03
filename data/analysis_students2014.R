@@ -1,0 +1,56 @@
+
+students2014 <- read.csv("~/IODS-project/data/learning2014.csv", sep = ",", header = TRUE)
+
+#get structure and data information
+str(students2014)
+dim(students2014)
+# The structure of the dataset is 166 rows with 8 columns. In other words, there are 166 obeservations of 8 variables. The 166 observations represent 166 different individuals. Each person is recognized by an id number (the X variable). Other information about each person is recorded in the subsequesnt colums. These variables are gender (M or F), Age (in years derived from birth date), attitude (scored out of 5.0 this is a measue of the individual's attitue towards statistics), deep (scored out of 5.0, this is a measurment of deep learning), stra (scored out of 5.0, this is a measurment of surface learning), surf (scored out of 5.0 this is a measurement of strategic learning), and Points (exam points, people with 0 points have been excluded from this dataset).
+
+#Installing GGally and ggplot2
+#install.packages("devtools")
+#library(devtools)
+#install_github("ggobi/ggally")
+install.packages("GGally")
+library(GGally)
+library(ggplot2)
+
+#general plots with color distinguishing gender
+p <- ggpairs(students2014[-1], mapping = aes(col = gender), lower = list(combo = wrap("facethist", bins = 20)))
+p
+
+#In this graphical overview we are able to quickly examine relationships between all variables. We are able see the following data: First, from the the box in the top left corner we see that there are about twice as many women (red), than men (green). This means that we have about twice as much data to draw from for women than men. When we examine the general corrolation values between variables we find the greatest corrolation between attitude and points (0.437) and the second greatest comes from deep learning and surface learning (-0.324). This second corrolation is a very strong negative relationship saying that if one has a very high deeplearning number it corresponds to a low surface learning number. The third strongest corrolation we find is between attitude and surface learning (-0.176). Again, this is a negative corrolation so the higher one score is, the lower the other will be. These corrolations are general across both genders, however if we seperate out by gender, then we find some even higher corrolation values. For example, the corrolation between deep leraning and surface learning (-0.324) shows very different things when we examine by gender. For women the corrolation is only -0.087 while for men the corrolation is -0.622. This suggests that men and women do not exhibit the same connection between deep learning and surface learning. On the other hand, when one breaks down the corrolation between attitude and points, we do not see a big difference between genders. For women the value is slightly lower than average, 0.422, and for men it is slightly higher than aveage 0.451. The box plot of age versus gender shows us that there are many outliers whose age falls much above the average age of the class. The box plots also show us that on average, women had slightly higher strategic learning scores when compared to men, and that men had a slightly higher average attitude score when compared to women. 
+
+students2014
+
+# original fit a linear linear regression model
+my_model <- lm(Points ~ attitude + surf + stra, data = students2014)
+summary(my_model)
+
+#The three explanitory variables I chose to investigate were attitude, surface and strategic learning. The first summary of my model indicated that only attitude had a significant relationship to exam points. Nevertheless, using the three explanitory vairables we get the following beta values for attitude, surface, and strategic learning: 3.4(.6), -.6(.8), .9(.5). With these three numbers, plus the Intercept alpha value, we are able to create a linear equation which models the realationship between the explanitory vairables and the target. This equation would look like: y = 11 + 3.4x -.6w +.9z. From this equation we see that if x (attitude) increase by one unit, then points increases by 3.4 units, if w (surface learning) increases by one unit, then points decreases by .6 units, and if z (strategic learning) increase by 1 unit, then points increases by .9 units. However, becuase the p-values on surf and stra are insignificant (above .05) it is necessary to re-run this regression model with those two explainitory elements removed. We can see this by the fact that the p-values on the rows for surf and stra are .466 and .117 respectively. For there to have been any sort of statistical significance, it would have been necessary for these p-values to be below .1, preferably below .05. As a result, I re-ran the model with only attitude as an explanitory variable. 
+
+#After removing those two elements we get a slightly different beta value for the attitude as well as a slightly different intercept. The new intercept is 11.6 (1.8) and the Beta value is 3.5(.6). As such, the new linear equation looks as follows: y=11.6 + 3.5x. The value of 3.5 is the Beta paramater indicating that as a person's attitude increases by one value, it is expected that their points value will increase 3.5 (with a standard deviation of .57) times. We also see that the alpha parameter is 11.6. This is the value of the intercept with the y-axis and means that when one has an attitude score of 0, the corresponding points value is 11.6 (with a standard deviation of 1.8). When using only one explanitory variable, attitude, we find that attitude has a very low, and thus very significant, p-value of 4.12 e-09. 
+
+
+#modified linear regression model with only one variable
+my_model_2 <- lm(Points ~ attitude, data = students2014)
+summary(my_model_2)
+
+#Linear regression models are created my minimizing the sum of squared risiduals. As a result, when we look at the min, 1st quartile, median, 3rd quartile, and max residual values we are looking at the distribution of the difference between the predicted values and the actual values. Because our model is found by minimizing the sum of the squared residues, we ideally want this range of residuals to be pretty small. The multiple R-squared value comes also comes from our residuals. In our original model with three explanitory variables we see a multiple R-squared value of .2074 where as in the model with just one explanatory variable the multiple R-squared value is 0.1906. These values give us an idea of whether our model is able to predict future outcomes and of how close the data are to fitting the linear regression line. These values indicate that our model can only account for approximately 30% of the variability in the data and thus is not a very good predictive model. 
+
+#Residuals vs Fitted values:
+plot(my_model, which = c(1))
+plot(my_model_2, which = c(1))
+
+#The Residuals vs Fitted values plot examins our assumption that there is constant variance in our dataset. This means that we are assuming that individual explanatory variables are not accountable for the size of errors in residuals. Here, any pattern in the plot indicates that our assumption is incorrect and that there is a relationship between individual explanatory variables and the size of errors. In both my models, we see no pattern in the scatter plot. Points are well distributed without a specific pattern. From this we can conclude that there is indeed constant variance in our dataset.  
+
+#Normal QQ-plot
+plot(my_model, which = c(2))
+plot(my_model_2, which = c(2))
+
+#The QQ-plot explores our assumption that error is normally distrupted over that dataset. In both of my models (with 3 explanitory variables and with just one explanitory vairable) we see similary Normal QQ-plots. In both plots we have points below -2 and above 2 on the theoretical quantiles scale which fall consistenly below the line. The fit is still reasonable, but suggests that there could be a better model that isn't linear. 
+
+#Residuals vs leverage
+plot(my_model, which = c(5))
+plot(my_model_2, which = c(5))
+
+#In the residuals vs leverage plot we are looking for the impact of individual observations. We want to make sure that one data point is not having a large impact on the model. In the first model which looks at three explanatory variables, we do not find single points which have unduely leverage. Looking at the scale we see that the max leverage is not more than .08. This is a realtively low leverage value. In teh second model we again do not find single points which have unduely leverage. Here, the max leverage does not even go above .05. This tells us that we do not have single points that have high leverage on overall observations. 

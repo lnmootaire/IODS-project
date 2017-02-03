@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "\n# About the project\n\n*Write a short description about the course and add a link to your github repository here. This is an R markdown (.Rmd) file so you can use R markdown syntax. See the 'Useful links' page in the mooc area (chapter 1) for instructions.*\n*edit*\n",
+    "created" : 1485534192048.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2280559794",
+    "id" : "9ACAD5FD",
+    "lastKnownWriteTime" : 1485549193,
+    "last_content_update" : 1485549193,
+    "path" : "~/IODS-project/chapter1.Rmd",
+    "project_path" : "chapter1.Rmd",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
