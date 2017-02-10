@@ -1,0 +1,149 @@
+# Chapter Three - Logistic Regression
+
+*Analysis*
+
+In this analysis we are [summary]
+
+Part 1: Create a new RMarkdown file and save it as an empty file named 'chapter3.Rmd'. Then include the file as a child file in your 'index.Rmd' file (similarily to 'chapter1.Rmd' and 'chapter2.Rmd'). Perform the following analysis in the chapter3.Rmd file.
+
+
+Part 2: Read the joined student alcohol consumption data into R either from your local folder
+
+First I read in the data and then look at colnames(alc) to reveal the names of the variables and dim(alc) to see the dimensions of the dataset. From this we see that the document has dimmesnions 382 by 36--382 observations of 36 variables. These 36 variables are the column names. These include school, sex, age, mother's job, father's job, freetime, and others. 
+```{r}
+alc <- read.csv("~/IODS-project/data/alc.csv", sep = ",", header = TRUE)
+colnames(alc)
+dim(alc)
+```
+
+Part 3: The purpose of your analysis is to study the relationships between high/low alcohol consumption and some of the other variables in the data. To do this, choose 4 interesting variables in the data and for each of them, present your personal hypothesis about their relationships with alcohol consumption. (1 point)
+
+In this analysis I will be looking to compare 4 different variables to alcohol usage. The four variables I will be investigating are "age" (the student's age), "nursery" (whether or not the student attended nursery school), "health" (health status on a scale of 1-5), and "address" (Urban or Rural). I hypothesize that older students are more likely to have high alcohol usage. I hypothesize that there is no significant difference between students with an urban or rural address nor between those who did or did not attend nursery school. And finally, I hypothesize that there is higher alcohol usage in students that are more healthy.
+
+Part 4: Numerically and graphically explore the distributions of your chosen variables and their relationships with alcohol consumption (use for example cross-tabulations, bar plots and box plots). Comment on your findings and compare the results of your exploration to your previously stated hypotheses. (5 points)
+
+First, we sill look at the student's age. In our first table we see that men who have  high alcohol usage are slightly older than men who do not, while women who exhibit high alcohol usage are slightly younger than women who do not. This finding is reitterated by the first box plot. In the second box plot, which has not been divided by gender, we are able to compare general trends in age versus high alcohol usage. From this box plot we see that the median age of those who exibit high alcohol usage is one year higher than the median of those who do not. Similarly, the top quartile is one year higher than that in non-high-users. The summary of the cross-tabulation table exibits a p-value of 0.2225 indicating that there is not a significant statistical difference in age between high alcohol and non-high alcohol students. While at first it appeared that there might be a connection between alcohol usage and age, these graphs suggest that the difference is to small to be statistically significant. 
+
+```{r}
+library(dplyr); library(ggplot2)
+alc %>% group_by(sex, high_use) %>% summarise(count = n(), mean_age = mean(age))
+g1 <- ggplot(alc, aes(x = high_use, y = age, col = sex))
+g1 + geom_boxplot() + ggtitle("Student Age by Gender and Alcohol Consumption")
+g2 <- ggplot(alc, aes(x = high_use, y = age))
+g2 + geom_boxplot()
+mytable <- xtabs(~high_use + age, data=alc)
+ftable(mytable)
+summary(mytable)
+```
+
+The second variable I looked at was the student's location. From the first table we begin to see that the proportion of high usage students in rural areas is much higher than in urban areas (31/50 vs 83/218). The cross-tabulation confirms that there is a significant difference between those that live in rural vs urban settings with the p-value of 0.062. The first bar graph helps us visualize these differences. Even though there is not an equal representation of students from rural vs urban backgrounds, we can see that more than half of rural student exhibit high alcohol usage while only about one third of urban students exhibit high alcohol usage. In the final bar graph we see theh distribution of alcohol usage over address. This is not a hugely helpful graph because it isn't possible to see trends by address. Mainly what we are able to see is that in both addresses, the majority of students have low alcohol usage. These results are in contradition to my original hypothesis which was that there would be no significant difference by address. 
+
+```{r}
+alc %>% group_by(address, high_use)  %>% summarise(count = n())
+mytable <- xtabs(~high_use + address, data=alc)
+ftable(mytable)
+summary(mytable)
+g2 <- ggplot(data = alc, aes(x = high_use), fill = address)
+g2 + geom_bar() + facet_wrap("address")
+g2 <- ggplot(data = alc, aes(x = alc_use, fill = address))
+g2 + geom_bar()
+
+```
+
+The third variable I looked at was if the student attended nursery school.From the first two tables we can see that most of our students attended nursery school. We can also see that it appears that those who did attend have a lower ration of high-usage students. However, the crosstabulation gives us a p-value of 0.197 suggesting that the results are not statistically significant. Finally, the bar graph is able to visually show us both that there is less data from students who did not attend nursery school and that of those who did, the ration of false:true is much higher. The fact that the results are not statistically significant confirms my hypothesis that there would not be a major difference between students who had or had not attended nursery school. 
+
+
+```{r}
+alc %>% group_by(nursery, high_use)  %>% summarise(count = n())
+mytable <- xtabs(~high_use + nursery, data=alc)
+ftable(mytable)
+summary(mytable)
+g2 <- ggplot(data = alc, aes(x = high_use, fill = nursery))
+g2 + geom_bar() + facet_wrap("nursery")
+
+```
+
+Finally we will look at current health status. From the first table we see a difference of only 0.2 between those who exhibited high usage 3.7 and those who did not, 3.5. However, from the box plot we see that the top quartile, median, and bottom quartile are identical between those who are high usage and those who are not. The p-value of the cross tabulation of .27 suggests that there is not a significant difference between health and alcohol usage. This is contrary to my original hypothesis that those who are healthier would be more likely to be high alcohol users. 
+
+
+
+```{r}
+alc %>% group_by(high_use) %>% summarise(count = n(), mean_health = mean(health))
+g2 <- ggplot(alc, aes(x = high_use, y = health))
+g2 + geom_boxplot()
+mytable <- xtabs(~high_use + health, data=alc)
+ftable(mytable)
+summary(mytable)
+```
+
+
+
+Part 5: Use logistic regression to statistically explore the relationship between your chosen variables and the binary high/low alcohol consumption variable as the target variable. Present and interpret a summary of the fitted model. Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. Interpret the results and compare them to your previously stated hypothesis. Hint: If your model includes factor variables see for example the first answer of this stackexchange thread on how R treats and how you should interpret these variables in the model output (or use some other resource to study this).
+
+Logistic regression with age, address, nursery school, and health:
+
+```{r}
+m <- glm(high_use ~ age + address + nursery + health, data = alc, family = "binomial")
+summary(m)
+coef(m)
+
+# compute odds ratios (OR)
+OR <- coef(m) %>% exp
+
+# compute confidence intervals (CI)
+CI <- confint(m) %>% exp
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
+
+```
+
+
+
+Part 6: Using the variables which, according to your logistic regression model, had a statistical relationship with high/low alcohol consumption, explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy. (3 points)
+
+THe only variable which had a statistical relationship with high/low alcohol consumption was age. 
+
+```{r}
+m3 <- glm(high_use ~ age, data = alc, family = "binomial")
+
+# predict() the probability of high_use
+probabilities <- predict(m3, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction = alc$probability>.5)
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction)
+
+# initialize a plot of 'high_use' versus 'probability' in 'alc'
+g <- ggplot(alc, aes(x = probability, y = high_use, col = prediction))
+
+# define the geom as points and draw the plot
+g + geom_point() + aes(col = prediction)
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction) %>%  prop.table() %>% addmargins()
+
+
+# define a loss function (mean prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# call loss_func to compute the average number of wrong predictions in the (training) data
+loss_func(class = alc$high_use, prob = alc$probability)
+
+```
+
+
+Part 7: Bonus: Perform 10-fold cross-validation on your model. Does your model have better test set performance (smaller prediction error using 10-fold cross-validation) compared to the model introduced in DataCamp (which had about 0.26 error). Could you find such a model? (2 points to compensate any loss of points from previous exercises)
+
+
+
+
+Part 8: Super-Bonus: Perform cross-validation to compare the performance of different logistic regression models (= different sets of predictors). Start with a very high number of predictors and explore the changes in the training and testing errors as you move to models with less predictors. Draw a graph displaying the trends of both training and testing errors by the number of predictors in the model. (4 points to compensate any loss of points from previous exercises)
