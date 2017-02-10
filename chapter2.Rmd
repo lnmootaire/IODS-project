@@ -4,7 +4,6 @@
 
 The structure of the original dataset had dimensions of 183 rows and 60 columns (183 observations with 60 variables). This dataset was cut modified to include overall measurements of deep learning, strategic learning, and surface learning.
 
-!(~IODS-project/data/Rplot.pdf)
 
 The structure of the new dataset I worked with is 166 rows with 8 columns. In other words, there are 166 obeservations of 8 variables. The 166 observations represent 166 different individuals. Each person is recognized by an id number (the X variable). Other information about each person is recorded in the subsequesnt colums. These variables are gender (M or F), Age (in years derived from birth date), attitude (scored out of 5.0 this is a measue of the individual's attitue towards statistics), deep (scored out of 5.0, this is a measurment of deep learning), stra (scored out of 5.0, this is a measurment of surface learning), surf (scored out of 5.0 this is a measurement of strategic learning), and Points (exam points, people with 0 points have been excluded from this dataset).
 
