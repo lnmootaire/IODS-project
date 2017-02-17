@@ -1,0 +1,99 @@
+# Chapter Four - Clustering and classification
+
+*Analysis*
+
+
+Part 2:
+```{r}
+library(MASS)
+data(Boston)
+str(Boston)
+```
+This data has 506 observations of 14 variables. This data is information about people who live in Boston as well as property. This data includes per capita crime rate by town, average number of rooms per dwelling, pupil-teacher ratio by town, nitrogen oxides concentraion, and more. 
+
+Part 3:
+Graphical overview of the data and show summaries of the variables in the data. From the summary we are able to see the distributions of variables. For example, while the median rad (index of accessibility to radial highways) is 5.0, the mean is 9.549 showing that the data is skewed to the right. We also see from the variable black, which is supposed to give us a sense of how many blacks live in different towns, that there is a town with a very very low black population. While the 1st qu. gives a result of 375.38, median 391.44, max. 396.9, the min is only 0.32. 
+From the corrpot we are able to see the relationship between variables. The very dark blue color between tax (full-value property-tax rate per \$10,000) and rad (index of accessibility to radial highways) shows a strong positive relationship between the two variables. Meaning the higher the property tax, the higher the accessibility to highways. The dark red color between dis (weighted mean of distances to five Boston employment centres) and nax (nitrogen oxides concentration (parts per 10 million)) shows a strong negative relationship suggesting that the further away one is from Boston's top five employment centres, the lower the nitrogen oxides concentraion. We also see strong negative relationships between dis and age (proportion of owner-occupied units built prior to 1940), dis and indus (proportion of non-retail business acres per town), and medv (median value of owner-occupied homes in \$1000s) and lstat (lower status of the population (percent)).
+
+
+```{r}
+library(corrplot)
+summary(Boston)
+cor_matrix<-cor(Boston) 
+corrplot(cor_matrix, method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
+```
+
+Part 4: Once the dataset has been scaled we see that the variables now all of means of 0. 
+
+
+```{r}
+#center and standardize variables
+boston_scaled <- scale(Boston)
+summary(boston_scaled)
+boston_scaled <- as.data.frame(boston_scaled)
+
+#create categorical variable
+scaled_crim <- boston_scaled$crim
+bins <- quantile(scaled_crim)
+crime <- cut(scaled_crim, breaks = bins, include.lowest = TRUE, labels = c("low", "med_low", "med_high", "high"))
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+boston_scaled <- data.frame(boston_scaled, crime)
+
+#create train and test sets
+ind <- sample(nrow(boston_scaled),  size = nrow(boston_scaled) * 0.8)
+train <- boston_scaled[ind,]
+test <- boston_scaled[-ind,]
+```
+
+
+Part 5: Fit the linear discriminant analysis on the train set and drew the LDA (bi)plot.
+
+```{r}
+lda.fit <- lda(crime ~ ., data = train)
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+classes <- as.numeric(train$crime)
+plot(lda.fit, dimen = 2, col = classes, pch = classes)
+lda.arrows(lda.fit, myscale = 1)
+
+```
+
+Part 6: From the cross tabulation we see that the model has decent predicitive power. We see from the center diagonal that there were 71 correct predictions and 31 incorrect. So it has about a 70% success rate. 
+
+```{r}
+correct_classes <- test$crime
+test <- dplyr::select(test, -crime)
+
+lda.pred <- predict(lda.fit, newdata = test)
+table(correct = correct_classes, predicted = lda.pred$class)
+```
+
+Part 7:From the summary of the distances we see that the mean and median are rather close together so this suggests that the data isn't particularly skewed. The median is 4.8 while the mean is 4.9. 
+We see the biggest drop between 0 and 2 clusters, so 2 is the optimal number of clusters. 
+
+The visualization of the clusters shows that some of the variables divide nicely into two clusters. For example, we can clearly see two different clusters in the visualization of nox and indus. However in other graphs we cannot distinguish between the two clusters. For example ptratio and rm show no visible clustering. 
+
+```{r}
+library(MASS)
+data(Boston)
+boston_scaled <- scale(Boston)
+dist_eu <- dist(boston_scaled)
+summary(dist_eu)
+km <-kmeans(dist_eu, centers = 10)
+set.seed(123)
+k_max <- 10
+twcss <- sapply(1:k_max, function(k){kmeans(dist_eu, k)$tot.withinss})
+plot(1:k_max, twcss, type='b')
+
+
+km <-kmeans(dist_eu, centers = 2)
+pairs(Boston, col = km$cluster)
+```
+
