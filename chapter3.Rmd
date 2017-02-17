@@ -11,7 +11,7 @@ Part 2: Read the joined student alcohol consumption data into R either from your
 
 First I read in the data and then look at colnames(alc) to reveal the names of the variables and dim(alc) to see the dimensions of the dataset. From this we see that the document has dimmesnions 382 by 36--382 observations of 36 variables. These 36 variables are the column names. These include school, sex, age, mother's job, father's job, freetime, and others. 
 ```{r}
-alc <- read.csv("~/IODS-project/data/alc.csv", sep = ",", header = TRUE)
+alc <- read.csv("~Documents/IODS-project/data/alc.csv", sep = ",", header = TRUE)
 colnames(alc)
 dim(alc)
 ```
