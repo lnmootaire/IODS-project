@@ -1,0 +1,95 @@
+##Chapter 5: Dimensionality Reduction Techniques
+
+
+*Analysis*
+
+
+Part 1: 
+The dimensions of the data are 155 by 8 (although there are really on 8 columns, the first column is just the row names(countries)). The first column is called "edu2F" and is the percentage of the female population with at least some secondary education	(% ages 25 and older). The second column is called "labF" and is the percentage of the female population participating in the labour force (% ages 15 and older). The third column is called "LifeInd" and is the life expectancy at birth (in years). THe fourth column is called "ExpKnoInd" and is the expected years of schooling. The fifth column is called "MatMor" and is the maternal mortality ration (deaths per 100,000 live births). The sixth column is called "GNI" and is the gross national income per capita. The seventh column is called "AdoBR" and is the adolescent birth rate (births per 1,000 women ages 15-19). The eigth and final column is called "PerParl" and is the percentage of seats held by women in parliment. 
+
+```{R}
+human <- read.csv("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human2.txt", sep = ",", header = TRUE)
+colnames(human)
+dim(human)
+```
+
+Part 2:
+In the first graphical overview we see that there is a strong positive relationship between life expectancy and expected years of schooling. This is indicated by the linear distribution of the data along a line of positive slope. We also see a correlation of .789. We also see a strong negative relationship between life expectancy and maternial mortality rate as visualized by a negative slope. We also see a correlation coefficient of -.857. In the second graphical overview these trends are visualized by the dark blue and dark red spots on the graph. 
+```{R}
+library(GGally)
+library(dplyr)
+library(corrplot)
+ggpairs(human)
+cor(human) %>% corrplot()
+```
+
+Part 3:
+Perform principal component analysis (PCA) on the not standardized human data. Show the variability captured by the principal components. Draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables.
+
+```{R}
+summary(human)
+pca_human <- prcomp(human)
+s <- summary(pca_human)
+s
+
+pca_pr <- round(100*s$importance[2,], digits = 1) 
+pca_pr
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
+biplot(pca_human, cex = c(0.5, 2), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
+
+
+```
+
+Part 4: 
+Without standardizing the data, the results of the first analysis are hard to interpret. We see that the arrow of the GNI vector is pointing along the x-axis so GNI is a feature contribuiting to the PC1 dimension. However, because we cannot see the direction the other arrows are point, it is not possible to interpret the relationship between other variables. 
+
+After standardizing the results change. We can see that the vectors Labo.FM (percent women in the labor force) and Pari.F (women in parlement) have a very small angle between each other and thus the corrolation between the two is strong. We also can observe that all the other vectors are orthogonal to these two, thus Labo.FM and Pari.F do not have a strong corrolation with the other variables. We also observe that Labo.FM and Pari.F are the only two vector contributing to the PC2 dimension. 
+
+We see that there are two vectors pointing to the right, Mat.Mor and AdoBR (Maternal mortality and adolescent birth rate). Again, the small angle between the two vectors demostrange a strong corrolation between the two variables. There are also four vectors pointing to the left. These vectors represent life expectancy at birth, expected education, GNI, and percentage of women with at least a secondary school education. The last two vectors have the smallest angle between them suggesting the strongest corrolation. However, all four variables show strong corrolation. Becuae these four vectors are pointed in the opposite direction from maternal mortality and adolescent birth rate, we observe that there is a strong negative corrolation between these two sets of variables. We also observe that all six are contributing to the PC1 dimension. 
+
+
+```{R}
+human_std <- scale(human)
+summary(human_std)
+pca_human <- prcomp(human_std)
+s <- summary(pca_human)
+s
+
+
+pca_pr <- round(100*s$importance[2,], digits = 1) 
+pca_pr
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
+biplot(pca_human, cex = c(0.4, 0.7), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
+```
+
+Part 5:
+I mentioned my interpretations of the first two principal comonent dimensions above but to reiterate, Labo.FM and Pari.F (women in the labor force and women in parliment) are the only two vector contributing to the PC2 dimension, while the vectors pointing to the right, Mat.Mor and AdoBR (maternal mortality and adolescent birth rate), as well as the vectors pointing to the left (life expectancy at birth, expected education, GNI, and percentage of women with at least a secondary school education), are contributing to the PC1 dimension. 
+
+
+
+Part 6:
+In the multiple correspondence analysis we see from the categorial variables table that none of hte variables have a particulalry strong corrolation with the three dimensions. The strongest corrolation is between price and dimension one, while the corrolation between price and dimension one as well as iron absorption and dimension two both have very low corrolations of .002. The biplot gives us a bit more information to interpret. While most of the variables seem to be rather evenly distributed, we see a few clusters of points. 2 cups per day, age 35-44, and variable price are all located almost on top of each other thus indicating that the three variables behave similarly in this analysis. We see a similar behavior between the two variables not tea room and p_cheap suggesting similarites between drinking tea outside of a tea room and low price. Finally, we see a one variables that is distant from all others--iron absorption. This suggests that this variable does not behave similarly to the others--iron absorption is independent of price, age of tea drinker, tea room, and the remainig variables.   
+
+```{R}
+library(FactoMineR)
+library(ggplot2)
+library(tidyr)
+
+#examine structure
+data(tea)
+dim(tea)
+colnames(tea)
+str(tea)
+
+#visualize
+keep_columns <- c("age_Q", "price", "frequency", "effect.on.health", "iron.absorption", "tearoom")
+tea_time <- select(tea, one_of(keep_columns))
+gather(tea_time) %>% ggplot(aes(value)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))+ facet_wrap("key", scales = "free") 
+
+#analysis
+mca <- MCA(tea_time, graph = FALSE)
+summary(mca)
+plot(mca, invisible=c("ind"), habillage = "quali")
+
+```
+
