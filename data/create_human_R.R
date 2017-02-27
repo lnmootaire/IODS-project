@@ -39,3 +39,36 @@ gii <- mutate(gii, lab.ratio = (labF / labM))
 #Join together data
 human <- inner_join(gii, hd, by = "Country")
 dim(human)
+head(human)
+
+#### Beginning of Final Data Wrangling Assignment 5
+library(stringr)
+library(plyr)
+library(dplyr)
+
+#mutation of Human GNI to numeric
+
+human$GNI <- str_replace(human$GNI, pattern=",", replace ="") %>% as.numeric
+
+head(human)
+
+
+#Exclude unneeded variables: keep only:  "Country", "Edu2.FM", "Labo.FM", "Edu.Exp", "Life.Exp", "GNI", "Mat.Mor", "Ado.Birth", "Parli.F"
+keep <- c("Country", "edu2F", "labF", "LifeInd", "ExpKnowInd", "GNI", "MatMor", "AdoBR", "PerParl")
+human <- select(human, one_of(keep))
+
+
+#Remove rows with missing values
+complete.cases(human)
+data.frame(human[-1], comp = complete.cases(human))
+human <- filter(human, complete.cases(human))
+
+#Remove the observations which relate to regions instead of countries (the last seven entries)
+last <- nrow(human) - 7
+human <- human[1:last, ]
+
+#Define the row names of the data by the country names and remove the country name column from the data. The data should now have 155 observations and 8 variables. Save the human data in your data folder including the row names. 
+rownames(human) <- human$Country
+human <- select(human, -Country)
+dim(human)
+write.csv(human, file = "~/Documents/IODS-project/data/human.csv")
